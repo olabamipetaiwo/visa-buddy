@@ -1,17 +1,23 @@
-
-import { useState, useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Video, Square, PlayCircle, PauseCircle } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState, useRef, useEffect, SetStateAction } from "react";
+import { Button } from "@/components/ui/button";
+import { Video, Square, PlayCircle, PauseCircle } from "lucide-react";
+import { toast } from "sonner";
 
 interface VideoRecorderProps {
   isRecording: boolean;
   onStartRecording: () => void;
   onStopRecording: () => void;
+  videoBlob: any;
+  setVideoBlob: React.Dispatch<SetStateAction<Blob>>;
 }
 
-const VideoRecorder = ({ isRecording, onStartRecording, onStopRecording }: VideoRecorderProps) => {
-  const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
+const VideoRecorder = ({
+  isRecording,
+  onStartRecording,
+  onStopRecording,
+  videoBlob,
+  setVideoBlob,
+}: VideoRecorderProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const videoChunksRef = useRef<Blob[]>([]);
@@ -23,10 +29,13 @@ const VideoRecorder = ({ isRecording, onStartRecording, onStopRecording }: Video
     return () => {
       // Clean up any active streams when component unmounts
       if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current.getTracks().forEach((track) => track.stop());
       }
-      
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+
+      if (
+        mediaRecorderRef.current &&
+        mediaRecorderRef.current.state === "recording"
+      ) {
         mediaRecorderRef.current.stop();
       }
     };
@@ -34,58 +43,65 @@ const VideoRecorder = ({ isRecording, onStartRecording, onStopRecording }: Video
 
   const handleStartRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: true, 
-        video: { 
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: {
           width: { ideal: 1280 },
           height: { ideal: 720 },
-          facingMode: "user"
-        } 
+          facingMode: "user",
+        },
       });
-      
+
       streamRef.current = stream;
-      
+
       // Display preview
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.play();
       }
-      
+
       mediaRecorderRef.current = new MediaRecorder(stream);
       videoChunksRef.current = [];
-      
+
       mediaRecorderRef.current.ondataavailable = (event) => {
         if (event.data.size > 0) {
           videoChunksRef.current.push(event.data);
         }
       };
-      
+
       mediaRecorderRef.current.onstop = () => {
-        const videoBlob = new Blob(videoChunksRef.current, { type: 'video/mp4' });
+        const videoBlob = new Blob(videoChunksRef.current, {
+          type: "video/mp4",
+        });
         setVideoBlob(videoBlob);
-        
+
         // Stop displaying the preview
         if (videoRef.current) {
           videoRef.current.srcObject = null;
         }
-        
+
         // Stop all tracks from the stream
         if (streamRef.current) {
-          streamRef.current.getTracks().forEach(track => track.stop());
+          streamRef.current.getTracks().forEach((track) => track.stop());
           streamRef.current = null;
         }
       };
-      
+
       mediaRecorderRef.current.start();
       onStartRecording();
     } catch (error) {
-      console.error('Error accessing camera/microphone:', error);
-      toast.error('Could not access camera or microphone. Please check permissions.');
+      console.error("Error accessing camera/microphone:", error);
+      toast.error(
+        "Could not access camera or microphone. Please check permissions."
+      );
     }
   };
 
   const handleStopRecording = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state === "recording"
+    ) {
       mediaRecorderRef.current.stop();
       onStopRecording();
     }
@@ -96,9 +112,9 @@ const VideoRecorder = ({ isRecording, onStartRecording, onStopRecording }: Video
       const videoUrl = URL.createObjectURL(videoBlob);
       videoPlayerRef.current.src = videoUrl;
       videoPlayerRef.current.play();
-      
+
       setIsPlaying(true);
-      
+
       videoPlayerRef.current.onended = () => {
         setIsPlaying(false);
       };
@@ -126,9 +142,9 @@ const VideoRecorder = ({ isRecording, onStartRecording, onStopRecording }: Video
         </>
       ) : videoBlob ? (
         <div className="w-full max-w-md">
-          <video 
-            ref={videoPlayerRef} 
-            className="w-full rounded-lg" 
+          <video
+            ref={videoPlayerRef}
+            className="w-full rounded-lg"
             controls={!isPlaying}
           />
           <div className="flex justify-center mt-2">
@@ -157,10 +173,12 @@ const VideoRecorder = ({ isRecording, onStartRecording, onStopRecording }: Video
         </div>
       ) : (
         <div className="bg-secondary/50 w-full max-w-md h-64 rounded-lg flex items-center justify-center">
-          <p className="text-muted-foreground">Start recording to see camera preview</p>
+          <p className="text-muted-foreground">
+            Start recording to see camera preview
+          </p>
         </div>
       )}
-      
+
       <div className="recording-controls">
         {isRecording ? (
           <Button

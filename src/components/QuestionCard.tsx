@@ -1,18 +1,23 @@
-
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { PlayCircle, PauseCircle, SkipForward, Clock } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
-import AudioRecorder from './AudioRecorder';
-import VideoRecorder from './VideoRecorder';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { PlayCircle, PauseCircle, SkipForward, Clock } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import AudioRecorder from "./AudioRecorder";
+import VideoRecorder from "./VideoRecorder";
 
 interface QuestionCardProps {
   question: string;
   questionNumber: number;
   totalQuestions: number;
-  recordingMode: 'audio' | 'video' | 'none';
+  recordingMode: "audio" | "video" | "none";
   onNext: () => void;
   onSkip: () => void;
   onEnd: (answeredQuestions: number) => void;
@@ -25,24 +30,26 @@ const QuestionCard = ({
   recordingMode,
   onNext,
   onSkip,
-  onEnd
+  onEnd,
 }: QuestionCardProps) => {
   const [isAnswering, setIsAnswering] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
 
+  const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
+
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | undefined;
-    
+
     if (isAnswering) {
       interval = setInterval(() => {
-        setSeconds(prev => prev + 1);
+        setSeconds((prev) => prev + 1);
       }, 1000);
     } else if (!isAnswering && seconds !== 0) {
       clearInterval(interval);
     }
-    
+
     return () => {
       if (interval) clearInterval(interval);
     };
@@ -61,6 +68,7 @@ const QuestionCard = ({
     setIsAnswering(false);
     setSeconds(0);
     setIsRecording(false);
+    setVideoBlob(null)
     onNext();
   };
 
@@ -74,7 +82,7 @@ const QuestionCard = ({
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
     const secs = time % 60;
-    return `${minutes}:${secs < 10 ? '0' + secs : secs}`;
+    return `${minutes}:${secs < 10 ? "0" + secs : secs}`;
   };
 
   const handleStartRecording = () => {
@@ -105,18 +113,20 @@ const QuestionCard = ({
         <CardTitle className="text-lg md:text-xl mb-6 leading-relaxed">
           {question}
         </CardTitle>
-        
-        {recordingMode === 'audio' ? (
+
+        {recordingMode === "audio" ? (
           <div className="mt-6">
-            <AudioRecorder 
+            <AudioRecorder
               isRecording={isRecording}
               onStartRecording={handleStartRecording}
               onStopRecording={handleStopRecording}
             />
           </div>
-        ) : recordingMode === 'video' ? (
+        ) : recordingMode === "video" ? (
           <div className="mt-6">
-            <VideoRecorder 
+            <VideoRecorder
+              videoBlob={videoBlob}
+              setVideoBlob={setVideoBlob}
               isRecording={isRecording}
               onStartRecording={handleStartRecording}
               onStopRecording={handleStopRecording}
@@ -125,14 +135,14 @@ const QuestionCard = ({
         ) : (
           <div className="bg-secondary/50 p-4 rounded-lg mt-4 border border-secondary">
             <p className="text-sm text-muted-foreground">
-              {isAnswering ? 
-                "Answering... Take your time to provide a complete answer." : 
-                "Press 'Start Answering' when you're ready to practice your response."}
+              {isAnswering
+                ? "Answering... Take your time to provide a complete answer."
+                : "Press 'Start Answering' when you're ready to practice your response."}
             </p>
           </div>
         )}
 
-        {recordingMode === 'none' && (
+        {recordingMode === "none" && (
           <Button
             variant={isAnswering ? "outline" : "default"}
             onClick={toggleAnswering}
@@ -151,8 +161,8 @@ const QuestionCard = ({
         )}
       </CardContent>
       <CardFooter className="flex justify-between gap-3 flex-wrap">
-        <Button 
-          variant="secondary" 
+        <Button
+          variant="secondary"
           onClick={handleSkip}
           className="flex items-center gap-2"
         >
