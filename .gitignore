@@ -25,11 +25,11 @@ dist-ssr
 
 # production
 /build
-# .env
-# # misc
-# .DS_Store
-# .env.local
-# .env.development.local
-# .env.test.local
-# .env.production.local
-# .next
+.env
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.next
