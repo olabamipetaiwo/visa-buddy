@@ -33,16 +33,29 @@ const sendAnalyticsData = async (ip: string, userAgent: string, referrer: string
     // console.log('navigator',navigator) 
     
     
-    const { data, error } = await supabase
+    // await supabase
+    // .from('visitors')
+    // .insert([
+    //   {
+    //     ip_address: ip,
+    //     user_agent: userAgent,
+    //     referrer: referrer,
+    //     timestamp: new Date().toISOString(),
+    //   },
+    // ]);
+
+    await supabase
     .from('visitors')
-    .insert([
+    .upsert([ 
       {
         ip_address: ip,
         user_agent: userAgent,
         referrer: referrer,
         timestamp: new Date().toISOString(),
+        visits: 1, 
       },
-    ]);
+    ], { onConflict: 'ip_address' });
+
 
 //   if (error) {
 //     console.error('Error sending data to Supabase:', error);
