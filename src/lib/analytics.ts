@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient('https://cxemktcyndsbvniibgad.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4ZW1rdGN5bmRzYnZuaWliZ2FkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4NDY2NzUsImV4cCI6MjA2MDQyMjY3NX0.JjfAtG4I19sqb7BerZbMRiC6qVbc9PMrzvmHNN5I3XQ');
+const supabase = createClient(process.env.REACT_APP_URL_PRIMARY, process.env.REACT_APP_PRIMARY_ANON);
 
 interface UserInfo {
   userAgent: string;
